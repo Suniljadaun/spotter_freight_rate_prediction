@@ -1,3 +1,5 @@
+"""Use the trained model to make the final predictions and check them with the scorer."""
+
 import subprocess
 import sys
 from pathlib import Path
@@ -14,6 +16,7 @@ PREDICTIONS_PATH = ROOT / "validation_predictions.csv"
 
 
 def find_data_file(*names: str) -> Path:
+    """Return the first of the given file names that exists in the data folder."""
     for name in names:
         path = ROOT / "data" / name
         if path.is_file():
@@ -22,6 +25,7 @@ def find_data_file(*names: str) -> Path:
 
 
 def predict_rates(bundle: dict, df: pd.DataFrame) -> np.ndarray:
+    """Predict the total price in dollars for each load."""
     features = preprocess_data(df, bundle["reference"])
     rpm = bundle["model"].predict(features[bundle["feature_cols"]])
     rates = rpm * features["distance"].to_numpy()
@@ -31,6 +35,7 @@ def predict_rates(bundle: dict, df: pd.DataFrame) -> np.ndarray:
 
 
 def run_predictions() -> None:
+    """Write the validation and December predictions, then run the scorer."""
     if not MODEL_PATH.is_file():
         sys.exit(f"Model not found at {MODEL_PATH}. Run: python src/train.py")
     bundle = joblib.load(MODEL_PATH)

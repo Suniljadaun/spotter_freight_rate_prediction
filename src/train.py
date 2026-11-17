@@ -1,3 +1,5 @@
+"""Train the model, test it on later months, and save the final version."""
+
 import json
 from pathlib import Path
 
@@ -42,6 +44,7 @@ LGB_PARAMS = dict(
 
 
 def rate_metrics(actual_rate, predicted_rate) -> dict:
+    """Measure how far predicted prices are from the real ones."""
     actual_rate, predicted_rate = np.asarray(actual_rate), np.asarray(predicted_rate)
     return {
         "MAE": mean_absolute_error(actual_rate, predicted_rate),
@@ -51,17 +54,21 @@ def rate_metrics(actual_rate, predicted_rate) -> dict:
 
 
 class NaiveBaseline:
+    """Simple benchmark that predicts the typical price per mile for each equipment type."""
 
     def fit(self, X, y, **_):
+        """Learn the median price per mile for each equipment type."""
         self.rpm_ = y.groupby(X["equipment"], observed=True).median()
         self.global_ = y.median()
         return self
 
     def predict(self, X):
+        """Predict price per mile from the equipment type."""
         return X["equipment"].map(self.rpm_).astype(float).fillna(self.global_).to_numpy()
 
 
 def make_ridge():
+    """Build a simple linear model to compare against."""
     numeric = [c for c in FEATURE_COLS if c != "equipment"]
     pre = ColumnTransformer(
         [("num", StandardScaler(), numeric), ("cat", OneHotEncoder(handle_unknown="ignore"), ["equipment"])]
@@ -70,6 +77,7 @@ def make_ridge():
 
 
 def fit_lgb(X_tr, y_tr, w_tr, X_te=None, y_te=None, w_te=None, n_estimators=None):
+    """Train a LightGBM model, stopping early if a test set is given."""
     params = dict(LGB_PARAMS)
     if n_estimators:
         params["n_estimators"] = n_estimators
@@ -87,6 +95,7 @@ def fit_lgb(X_tr, y_tr, w_tr, X_te=None, y_te=None, w_te=None, n_estimators=None
 
 
 def train_model() -> None:
+    """Run the full training process and save the model and its scores."""
     print("=== Loading and preprocessing ===")
     raw_train = filter_target_outliers(load_dataset("train_test"))
     val_features = load_dataset("validation")

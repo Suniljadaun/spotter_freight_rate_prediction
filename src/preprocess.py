@@ -1,3 +1,5 @@
+"""Load the data, clean it and build the features the model uses."""
+
 from pathlib import Path
 
 import numpy as np
@@ -33,6 +35,7 @@ EQUIPMENT_TYPES = ["Dry Van", "Flatbed", "Reefer"]
 
 
 def load_dataset(name: str) -> pd.DataFrame:
+    """Read a CSV from the data folder, whether its name uses dashes or underscores."""
     stems = {name, name.replace("_", "-"), name.replace("-", "_")}
     for stem in stems:
         for folder in (ROOT / "data", ROOT):
@@ -43,6 +46,7 @@ def load_dataset(name: str) -> pd.DataFrame:
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):
+    """Straight-line distance in miles between two points on the globe."""
     phi1, phi2 = np.radians(lat1), np.radians(lat2)
     dphi = np.radians(lat2 - lat1)
     dlambda = np.radians(lon2 - lon1)
@@ -51,6 +55,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
 
 def filter_target_outliers(df: pd.DataFrame, target_col="posted_rate", min_rpm=MIN_RPM, max_rpm=MAX_RPM):
+    """Drop training rows whose price per mile is too low or too high to be real."""
     if target_col not in df.columns:
         return df
     rpm = df[target_col] / df["distance"].abs().clip(lower=1.0)
@@ -60,6 +65,7 @@ def filter_target_outliers(df: pd.DataFrame, target_col="posted_rate", min_rpm=M
 
 
 def build_reference(train_df: pd.DataFrame, extra_feature_frames=()) -> dict:
+    """Collect the numbers needed to clean any dataset the same way, like medians and city coordinates."""
     frames = [train_df, *extra_feature_frames]
     feats = pd.concat([f.drop(columns=["posted_rate"], errors="ignore") for f in frames], ignore_index=True)
 
@@ -81,6 +87,7 @@ def build_reference(train_df: pd.DataFrame, extra_feature_frames=()) -> dict:
 
 
 def _fill_market_index(dates: pd.Series, ref: dict) -> pd.Series:
+    """Get the market index for each date, using recent days when a date is unknown."""
     daily = ref["daily_market"]
     filled = dates.dt.normalize().map(daily)
     if filled.isna().any():
@@ -90,6 +97,7 @@ def _fill_market_index(dates: pd.Series, ref: dict) -> pd.Series:
 
 
 def preprocess_data(df: pd.DataFrame, ref: dict) -> pd.DataFrame:
+    """Clean one dataset and add all model features to it."""
     data = df.copy()
     data["date"] = pd.to_datetime(data["date"])
 

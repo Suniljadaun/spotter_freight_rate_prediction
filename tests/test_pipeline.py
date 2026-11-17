@@ -1,3 +1,5 @@
+"""Basic checks that the data pipeline and output files are correct."""
+
 from pathlib import Path
 
 import numpy as np
@@ -14,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture(scope="module")
 def data():
+    """Load and prepare the datasets once for all tests."""
     train = filter_target_outliers(load_dataset("train_test"))
     val = load_dataset("validation")
     dec = load_dataset("december_chart_inputs")
@@ -22,11 +25,13 @@ def data():
 
 
 def test_excluded_features_not_used():
+    """The unreliable quote and market columns must not be model features."""
     for col in QUOTE_COLS + MARKET_COLS:
         assert col not in FEATURE_COLS
 
 
 def test_outlier_filter_keeps_band(data):
+    """Only rows with a believable price per mile are kept."""
     train = data[0]
     rpm = train["posted_rate"] / train["distance"]
     assert rpm.between(MIN_RPM, MAX_RPM).all()
@@ -35,6 +40,7 @@ def test_outlier_filter_keeps_band(data):
 
 @pytest.mark.parametrize("which", [0, 1, 2])
 def test_features_complete(data, which):
+    """Every feature is filled in after cleaning, with no rows lost."""
     frame, ref = data[which], data[3]
     out = preprocess_data(frame, ref)
     assert len(out) == len(frame)
@@ -42,6 +48,7 @@ def test_features_complete(data, which):
 
 
 def test_weights_positive_and_flagged(data):
+    """Weights end up positive, and bad or missing weights are flagged."""
     val, ref = data[1], data[3]
     out = preprocess_data(val, ref)
     assert (out["weight"] > 0).all()
@@ -50,6 +57,7 @@ def test_weights_positive_and_flagged(data):
 
 
 def test_december_gets_coordinates(data):
+    """December rows get city coordinates even though the file has none."""
     dec, ref = data[2], data[3]
     out = preprocess_data(dec, ref)
     assert out[["pickup_lat", "pickup_lon", "delivery_lat", "delivery_lon"]].nunique().eq(1).all()
@@ -57,6 +65,7 @@ def test_december_gets_coordinates(data):
 
 
 def test_preprocess_does_not_mutate_input(data):
+    """Cleaning does not change the original data."""
     val, ref = data[1], data[3]
     before = val.copy()
     preprocess_data(val, ref)
@@ -65,6 +74,7 @@ def test_preprocess_does_not_mutate_input(data):
 
 @pytest.mark.skipif(not (ROOT / "validation_predictions.csv").is_file(), reason="run src/predict.py first")
 def test_output_format():
+    """The prediction file matches the required format and load order."""
     sub = pd.read_csv(ROOT / "validation_predictions.csv")
     template = pd.read_csv(next((ROOT / "data").glob("validation*template.csv")))
     assert list(sub.columns) == ["load_id", "predicted_rate"]

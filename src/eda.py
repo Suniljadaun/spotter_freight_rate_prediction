@@ -1,3 +1,5 @@
+"""Explore the raw data and print what it shows."""
+
 from pathlib import Path
 
 import matplotlib
@@ -11,6 +13,7 @@ FIG_DIR = ROOT / "reports" / "figures"
 
 
 def find_file(*candidates: str) -> Path:
+    """Return the first of the given file paths that exists."""
     for name in candidates:
         path = ROOT / name
         if path.is_file():
@@ -19,6 +22,7 @@ def find_file(*candidates: str) -> Path:
 
 
 def load_data():
+    """Load the training, validation and December files."""
     train = pd.read_csv(find_file("data/train-test.csv", "data/train_test.csv"), parse_dates=["date"])
     val = pd.read_csv(find_file("data/validation.csv"), parse_dates=["date"])
     dec = pd.read_csv(find_file("data/december-chart-inputs.csv", "data/december_chart_inputs.csv"))
@@ -26,10 +30,12 @@ def load_data():
 
 
 def section(title: str) -> None:
+    """Print a section heading."""
     print(f"\n=== {title} ===")
 
 
 def quality_report(df: pd.DataFrame, name: str) -> None:
+    """Print missing values and other data problems in a dataset."""
     section(f"Data quality: {name}")
     missing = df.isnull().sum()
     missing = missing[missing > 0]
@@ -45,6 +51,7 @@ def quality_report(df: pd.DataFrame, name: str) -> None:
 
 
 def run_eda() -> None:
+    """Print the main findings about the data and save a few charts."""
     train, val, dec = load_data()
 
     section("Shapes")
@@ -119,6 +126,7 @@ def run_eda() -> None:
 
 
 def save_figures(train: pd.DataFrame, rpm: pd.Series) -> None:
+    """Save basic charts of price against distance and time."""
     FIG_DIR.mkdir(parents=True, exist_ok=True)
 
     fig, ax = plt.subplots(figsize=(8, 5))

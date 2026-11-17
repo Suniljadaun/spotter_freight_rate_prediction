@@ -1,3 +1,5 @@
+"""Compare other tree models with LightGBM on the same time-based test months."""
+
 import time
 
 import pandas as pd
@@ -8,6 +10,7 @@ from train import FOLDS, VALIDATION_LIKE_FOLD, fit_lgb, rate_metrics
 
 
 def fit_xgb(X_tr, y_tr, w_tr, X_te, y_te, w_te):
+    """Train an XGBoost model."""
     from xgboost import XGBRegressor
 
     model = XGBRegressor(
@@ -21,12 +24,14 @@ def fit_xgb(X_tr, y_tr, w_tr, X_te, y_te, w_te):
 
 
 def fit_rf(X_tr, y_tr, w_tr, *_):
+    """Train a random forest model."""
     X_tr = X_tr.assign(equipment=X_tr["equipment"].cat.codes)
     model = RandomForestRegressor(n_estimators=300, min_samples_leaf=5, max_features=0.5, n_jobs=-1, random_state=42)
     return model.fit(X_tr, y_tr, sample_weight=w_tr)
 
 
 def fit_cat(X_tr, y_tr, w_tr, X_te, y_te, w_te):
+    """Train a CatBoost model."""
     from catboost import CatBoostRegressor
 
     model = CatBoostRegressor(loss_function="RMSE", learning_rate=0.1, depth=6, iterations=2000,
@@ -39,6 +44,7 @@ def fit_cat(X_tr, y_tr, w_tr, X_te, y_te, w_te):
 
 
 def predict(model, X):
+    """Predict with any of the models, formatting the equipment column the way each one needs."""
     if isinstance(model, RandomForestRegressor):
         X = X.assign(equipment=X["equipment"].cat.codes)
     elif getattr(model, "_needs_str", False):
@@ -47,6 +53,7 @@ def predict(model, X):
 
 
 def main() -> None:
+    """Train every available model on each test month and print how they compare."""
     raw = filter_target_outliers(load_dataset("train_test"))
     ref = build_reference(raw, [load_dataset("validation")])
     data = preprocess_data(raw, ref).sort_values("date").reset_index(drop=True)

@@ -1,3 +1,5 @@
+"""Make the charts used in the written report."""
+
 import json
 from pathlib import Path
 import pandas as pd, numpy as np, matplotlib
