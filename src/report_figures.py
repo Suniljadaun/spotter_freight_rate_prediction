@@ -1,8 +1,3 @@
-"""Build the figures used in the written report (reports/figures/).
-
-Run from the project root after python src/train.py:
-    python src/report_figures.py
-"""
 import json
 from pathlib import Path
 import pandas as pd, numpy as np, matplotlib
@@ -17,7 +12,6 @@ Path(out).mkdir(parents=True, exist_ok=True)
 t=load_dataset('train_test'); t['rpm']=t.posted_rate/t.distance
 m=json.loads((ROOT / 'reports' / 'metrics.json').read_text())
 
-# 1 market index vs rate per mile, indexed Jan=100
 g=t.groupby(t.date.dt.to_period('M')).agg(mi=('market_index','mean'),rpm=('rpm',lambda s:s[(s>=1.3)&(s<=4)].mean()))
 idx=g/g.iloc[0]*100; x=np.arange(len(idx)); lab=[p.strftime('%b') for p in idx.index]
 fig,ax=plt.subplots(figsize=(8,3.8),dpi=200)
@@ -29,7 +23,6 @@ ax.grid(axis='y',color=GRID,lw=.8); ax.set_ylabel('Index (Jan 2025 = 100)')
 ax.set_title('market_index swings 40%; rate per mile moves ~10%')
 fig.tight_layout(); fig.savefig(out+'market_vs_rate.png'); plt.close(fig)
 
-# 2 rpm distribution with kept band
 fig,ax=plt.subplots(figsize=(8,3.6),dpi=200)
 bins=np.linspace(0,15,151)
 ax.hist(t.rpm,bins=bins,color=TEAL,edgecolor='white',linewidth=.3)
@@ -41,7 +34,6 @@ ax.set_xlabel('Rate per mile (\$)'); ax.set_ylabel('Loads (log scale)'); ax.grid
 ax.set_title('Rate per mile: 677 label errors sit in two clusters outside the normal band')
 fig.tight_layout(); fig.savefig(out+'rpm_distribution.png'); plt.close(fig)
 
-# 3 model comparison: 4-fold mean vs the validation-like August fold
 mean = pd.DataFrame(m['mean']).set_index('model')
 order = ['Naive (equipment rpm)', 'Ridge', 'LightGBM + quote_signal', 'LightGBM + market_index', 'LightGBM (final)']
 names = ['Naive baseline', 'Ridge regression', 'LightGBM + quote_signal', 'LightGBM + market_index', 'LightGBM (final)']
@@ -66,7 +58,6 @@ ax.legend(loc='lower right', frameon=False, fontsize=8.5)
 ax.set_title('Out-of-time backtest: model comparison')
 fig.tight_layout(); fig.savefig(out + 'model_comparison.png'); plt.close(fig)
 
-# 3b quote_signal regimes: corr(quote_signal, distance) by month, train + validation
 v = load_dataset('validation')
 allr = pd.concat([t, v])
 qc = allr.groupby(allr.date.dt.month).apply(lambda g: g.quote_signal.corr(g.distance))
@@ -89,7 +80,6 @@ ax.grid(axis='y', color=GRID, lw=.8); ax.set_axisbelow(True)
 ax.set_title('quote_signal changes meaning by month; Nov–Dec match noisy August')
 fig.tight_layout(); fig.savefig(out + 'quote_signal_regimes.png'); plt.close(fig)
 
-# 4 fold timeline
 fig, ax = plt.subplots(figsize=(8, 2.8), dpi=200)
 months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 rows = [('Fold Jul', 6, 1, None), ('Fold Aug', 7, 1, None), ('Fold Sep', 8, 1, None), ('Fold Oct', 9, 1, None), ('Final', 10, 0, 2)]
@@ -109,7 +99,6 @@ ax.set_xlim(0, 12); ax.spines['left'].set_visible(False)
 ax.set_title('Expanding-window, out-of-time validation (2025)')
 fig.tight_layout(); fig.savefig(out + 'fold_timeline.png'); plt.close(fig)
 
-# 5 feature importance top 8
 imp=pd.Series(m['feature_importance_pct']).sort_values(ascending=False).head(8)[::-1]
 fig,ax=plt.subplots(figsize=(8,3),dpi=200)
 ax.barh(imp.index,imp.values,color=TEAL,height=.6)

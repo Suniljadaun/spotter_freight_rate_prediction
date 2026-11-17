@@ -1,16 +1,3 @@
-"""Compare alternative tree models against the final LightGBM on the same out-of-time folds.
-
-Run from the project root:
-    python src/compare_models.py
-
-Same preprocessing, features, target (rate per mile, weighted by distance) and folds as
-train.py, so the numbers are directly comparable. XGBoost and CatBoost get the same
-early-stopping treatment as LightGBM.
-
-XGBoost and CatBoost are optional extras, not in requirements.txt. Install them to include them:
-    python -m pip install xgboost catboost
-Any that are missing are skipped.
-"""
 import time
 
 import pandas as pd
@@ -24,7 +11,6 @@ def fit_xgb(X_tr, y_tr, w_tr, X_te, y_te, w_te):
     from xgboost import XGBRegressor
 
     model = XGBRegressor(
-        # reg:pseudohubererror collapsed to a constant prediction here, so use plain squared error
         objective="reg:squarederror",
         learning_rate=0.03, max_depth=6, min_child_weight=40, subsample=0.8, colsample_bytree=0.8,
         reg_lambda=1.0, n_estimators=3000, early_stopping_rounds=200, eval_metric="mae",
@@ -35,7 +21,7 @@ def fit_xgb(X_tr, y_tr, w_tr, X_te, y_te, w_te):
 
 
 def fit_rf(X_tr, y_tr, w_tr, *_):
-    X_tr = X_tr.assign(equipment=X_tr["equipment"].cat.codes)  # sklearn RF needs numeric input
+    X_tr = X_tr.assign(equipment=X_tr["equipment"].cat.codes)
     model = RandomForestRegressor(n_estimators=300, min_samples_leaf=5, max_features=0.5, n_jobs=-1, random_state=42)
     return model.fit(X_tr, y_tr, sample_weight=w_tr)
 
@@ -43,7 +29,6 @@ def fit_rf(X_tr, y_tr, w_tr, *_):
 def fit_cat(X_tr, y_tr, w_tr, X_te, y_te, w_te):
     from catboost import CatBoostRegressor
 
-    # Huber loss also failed to converge here (MAE > $1,000), so use RMSE like XGBoost
     model = CatBoostRegressor(loss_function="RMSE", learning_rate=0.1, depth=6, iterations=2000,
                               early_stopping_rounds=200, eval_metric="MAE", random_seed=42, verbose=False,
                               cat_features=["equipment"], allow_writing_files=False)
@@ -73,7 +58,7 @@ def main() -> None:
             if module:
                 __import__(module)
             fitters[name] = fit
-        except Exception as exc:  # not installed, or blocked by the OS
+        except Exception as exc:
             print(f"{name} skipped: {type(exc).__name__}")
 
     rows = []

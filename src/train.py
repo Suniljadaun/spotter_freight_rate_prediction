@@ -1,28 +1,3 @@
-"""Train and validate the freight rate model.
-
-Run from the project root:
-    python src/train.py
-
-Validation design
------------------
-Training data covers Jan-Oct 2025 and the final predictions are for Nov-Dec 2025,
-so validation must be out-of-time. We use an expanding-window backtest over four months:
-
-    train Jan-Jun -> test Jul      train Jan-Jul -> test Aug
-    train Jan-Aug -> test Sep      train Jan-Sep -> test Oct
-
-August matters most: it is the only training month where quote_signal is pure noise,
-which is also true of the validation period (Nov-Dec). See preprocess.QUOTE_COLS.
-
-Models compared on the same folds (metrics on total rate in $):
-    1. Naive baseline: median rate-per-mile per equipment x distance
-    2. Ridge regression on rate per mile
-    3. LightGBM + quote_signal   (ablation: great on leak months, fails on August)
-    4. LightGBM + market_index   (ablation: hurts out of time)
-    5. LightGBM on rate per mile, weighted by distance so the loss matches $ error (final)
-
-The best model is refit on all Jan-Oct data and saved to models/freight_model.pkl.
-"""
 import json
 from pathlib import Path
 
@@ -42,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MODEL_DIR = ROOT / "models"
 REPORT_DIR = ROOT / "reports"
 
-FOLDS = [  # (test start, test end)
+FOLDS = [
     ("2025-07-01", "2025-08-01"),
     ("2025-08-01", "2025-09-01"),
     ("2025-09-01", "2025-10-01"),
@@ -52,7 +27,7 @@ VALIDATION_LIKE_FOLD = "test 2025-08"
 
 LGB_PARAMS = dict(
     objective="huber",
-    alpha=0.5,  # huber threshold in $/mile: robust to label noise that survives the outlier filter
+    alpha=0.5,
     learning_rate=0.03,
     num_leaves=31,
     min_child_samples=40,
@@ -66,7 +41,6 @@ LGB_PARAMS = dict(
 )
 
 
-# --------------------------------------------------------------------------- metrics
 def rate_metrics(actual_rate, predicted_rate) -> dict:
     actual_rate, predicted_rate = np.asarray(actual_rate), np.asarray(predicted_rate)
     return {
@@ -76,9 +50,7 @@ def rate_metrics(actual_rate, predicted_rate) -> dict:
     }
 
 
-# --------------------------------------------------------------------------- models
 class NaiveBaseline:
-    """Median rate per mile for each equipment type, multiplied by distance."""
 
     def fit(self, X, y, **_):
         self.rpm_ = y.groupby(X["equipment"], observed=True).median()
@@ -105,16 +77,15 @@ def fit_lgb(X_tr, y_tr, w_tr, X_te=None, y_te=None, w_te=None, n_estimators=None
     if X_te is not None:
         common = dict(sample_weight=w_tr, eval_sample_weight=[w_te], eval_metric="l1",
                       callbacks=[lgb.early_stopping(200, verbose=False)])
-        try:  # LightGBM >= 4.7 API
+        try:
             model.fit(X_tr, y_tr, eval_X=(X_te,), eval_y=(y_te,), **common)
-        except TypeError:  # older LightGBM
+        except TypeError:
             model.fit(X_tr, y_tr, eval_set=[(X_te, y_te)], **common)
     else:
         model.fit(X_tr, y_tr, sample_weight=w_tr)
     return model
 
 
-# --------------------------------------------------------------------------- main
 def train_model() -> None:
     print("=== Loading and preprocessing ===")
     raw_train = filter_target_outliers(load_dataset("train_test"))
@@ -161,7 +132,6 @@ def train_model() -> None:
     print("\n=== Mean across folds (Aug_MAE = validation-like fold) ===")
     print(summary.round(2).to_string())
 
-    # Feature importance from the last fold's final-feature LightGBM (gain)
     importance = (
         pd.Series(lgbm.booster_.feature_importance("gain"), index=FEATURE_COLS)
         .sort_values(ascending=False)
@@ -170,8 +140,7 @@ def train_model() -> None:
     print("\n=== LightGBM feature importance (% of gain) ===")
     print(importance.to_string())
 
-    # Refit on all Jan-Oct data with the averaged early-stopping round count
-    n_final = int(np.mean(best_iters) * 1.1)  # slightly more rounds: the final fit has more data than any fold
+    n_final = int(np.mean(best_iters) * 1.1)
     print(f"\n=== Refitting LightGBM on all data ({n_final} trees) ===")
     final_model = fit_lgb(X, y, dist, n_estimators=n_final)
 

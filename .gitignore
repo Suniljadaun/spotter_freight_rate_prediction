@@ -5,10 +5,8 @@ __pycache__/
 .ipynb_checkpoints/
 *copy.txt
 
-# Raw data (not shared)
 data/
 spotter/
 
-# Generated artefacts
 models/
 catboost_info/

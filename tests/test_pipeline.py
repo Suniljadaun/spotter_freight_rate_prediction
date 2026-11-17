@@ -1,8 +1,3 @@
-"""Sanity tests for the data pipeline and output files.
-
-Run from the project root:
-    python -m pytest -q
-"""
 from pathlib import Path
 
 import numpy as np
@@ -58,7 +53,7 @@ def test_december_gets_coordinates(data):
     dec, ref = data[2], data[3]
     out = preprocess_data(dec, ref)
     assert out[["pickup_lat", "pickup_lon", "delivery_lat", "delivery_lon"]].nunique().eq(1).all()
-    assert (out["circuity"] > 1).all()  # road distance exceeds straight-line distance
+    assert (out["circuity"] > 1).all()
 
 
 def test_preprocess_does_not_mutate_input(data):

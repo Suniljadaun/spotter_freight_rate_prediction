@@ -1,11 +1,3 @@
-"""Exploratory data analysis for the freight rate prediction project.
-
-Run from the project root:
-    python src/eda.py
-
-Reads the CSVs from data/ (accepts hyphenated or underscored names).
-Prints an audit to the console and saves charts to reports/figures/.
-"""
 from pathlib import Path
 
 import matplotlib
@@ -75,7 +67,7 @@ def run_eda() -> None:
     print(rpm.quantile([0, 0.001, 0.01, 0.5, 0.99, 0.999, 1]).round(2))
     print("\nRate per mile distribution (label errors cluster at ~0.3x and ~3.5x normal):")
     print(pd.cut(rpm, [0, 0.5, 1.0, 1.3, 1.67, 3.2, 4.0, 8.0, 20.0]).value_counts().sort_index().to_string())
-    lo, hi = 1.30, 4.00  # same band as preprocess.MIN_RPM / MAX_RPM
+    lo, hi = 1.30, 4.00
     print(f"Rows outside ${lo:.2f}-${hi:.2f}/mile (dropped in training): {((rpm < lo) | (rpm > hi)).sum()}")
 
     section("Correlations with posted_rate")
