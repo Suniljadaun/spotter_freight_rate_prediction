@@ -9,7 +9,7 @@ November–December prediction window. A naive baseline scores $175 and Ridge re
 
 Full write-up: [`reports/Freight_Rate_Report.pdf`](reports/Freight_Rate_Report.pdf)
 
-Code: https://github.com/Suniljadaun/spotter_freight_rate_prediction-
+Code: https://github.com/Suniljadaun/spotter_freight_rate_prediction
 
 ## Results
 
