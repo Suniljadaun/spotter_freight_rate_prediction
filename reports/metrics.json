@@ -1,0 +1,200 @@
+{
+  "folds": [
+    {
+      "fold": "test 2025-07",
+      "model": "Naive (equipment rpm)",
+      "MAE": 156.73583902620885,
+      "RMSE": 222.8284593755104,
+      "MAPE_%": 7.789002595423436
+    },
+    {
+      "fold": "test 2025-07",
+      "model": "Ridge",
+      "MAE": 70.70957739610752,
+      "RMSE": 99.32091279141373,
+      "MAPE_%": 3.168851289044086
+    },
+    {
+      "fold": "test 2025-07",
+      "model": "LightGBM + quote_signal",
+      "MAE": 44.00653058864797,
+      "RMSE": 71.05545932160462,
+      "MAPE_%": 1.737866275112404
+    },
+    {
+      "fold": "test 2025-07",
+      "model": "LightGBM + market_index",
+      "MAE": 41.6867878895547,
+      "RMSE": 60.16466342054579,
+      "MAPE_%": 1.7848291793353184
+    },
+    {
+      "fold": "test 2025-07",
+      "model": "LightGBM (final)",
+      "MAE": 64.2745194550714,
+      "RMSE": 89.2496417174476,
+      "MAPE_%": 2.6297093422465707
+    },
+    {
+      "fold": "test 2025-08",
+      "model": "Naive (equipment rpm)",
+      "MAE": 193.41541285927065,
+      "RMSE": 292.7884716326482,
+      "MAPE_%": 8.201988036756246
+    },
+    {
+      "fold": "test 2025-08",
+      "model": "Ridge",
+      "MAE": 54.17700435125059,
+      "RMSE": 75.79291556522796,
+      "MAPE_%": 2.564455150315452
+    },
+    {
+      "fold": "test 2025-08",
+      "model": "LightGBM + quote_signal",
+      "MAE": 104.48319774129688,
+      "RMSE": 152.05315913612876,
+      "MAPE_%": 4.98809429780137
+    },
+    {
+      "fold": "test 2025-08",
+      "model": "LightGBM + market_index",
+      "MAE": 60.08940699776515,
+      "RMSE": 84.44026332514468,
+      "MAPE_%": 2.725988951679236
+    },
+    {
+      "fold": "test 2025-08",
+      "model": "LightGBM (final)",
+      "MAE": 40.74433199796696,
+      "RMSE": 59.7300339960918,
+      "MAPE_%": 1.7361637230496263
+    },
+    {
+      "fold": "test 2025-09",
+      "model": "Naive (equipment rpm)",
+      "MAE": 177.84228955390736,
+      "RMSE": 260.0341559304924,
+      "MAPE_%": 8.091676596859344
+    },
+    {
+      "fold": "test 2025-09",
+      "model": "Ridge",
+      "MAE": 56.801134994911315,
+      "RMSE": 82.03020511033475,
+      "MAPE_%": 2.7067304678087787
+    },
+    {
+      "fold": "test 2025-09",
+      "model": "LightGBM + quote_signal",
+      "MAE": 28.269511290785744,
+      "RMSE": 43.65885699268353,
+      "MAPE_%": 1.151527395848353
+    },
+    {
+      "fold": "test 2025-09",
+      "model": "LightGBM + market_index",
+      "MAE": 89.58427282504596,
+      "RMSE": 121.14282660693928,
+      "MAPE_%": 4.269605425507455
+    },
+    {
+      "fold": "test 2025-09",
+      "model": "LightGBM (final)",
+      "MAE": 43.92019695369844,
+      "RMSE": 66.5270207017449,
+      "MAPE_%": 1.871785521968628
+    },
+    {
+      "fold": "test 2025-10",
+      "model": "Naive (equipment rpm)",
+      "MAE": 172.98452659992657,
+      "RMSE": 257.5731259728197,
+      "MAPE_%": 8.095395488809668
+    },
+    {
+      "fold": "test 2025-10",
+      "model": "Ridge",
+      "MAE": 50.88947119480066,
+      "RMSE": 72.00862047037138,
+      "MAPE_%": 2.564615582433338
+    },
+    {
+      "fold": "test 2025-10",
+      "model": "LightGBM + quote_signal",
+      "MAE": 33.461906962090495,
+      "RMSE": 51.65849101078644,
+      "MAPE_%": 1.4002719322602193
+    },
+    {
+      "fold": "test 2025-10",
+      "model": "LightGBM + market_index",
+      "MAE": 68.2943276340542,
+      "RMSE": 91.80803396620652,
+      "MAPE_%": 3.089942128829053
+    },
+    {
+      "fold": "test 2025-10",
+      "model": "LightGBM (final)",
+      "MAE": 39.398883381340895,
+      "RMSE": 56.372913374861625,
+      "MAPE_%": 1.726490922773892
+    }
+  ],
+  "mean": [
+    {
+      "model": "Naive (equipment rpm)",
+      "MAE": 175.245,
+      "RMSE": 258.306,
+      "MAPE_%": 8.045,
+      "Aug_MAE": 193.415
+    },
+    {
+      "model": "Ridge",
+      "MAE": 58.144,
+      "RMSE": 82.288,
+      "MAPE_%": 2.751,
+      "Aug_MAE": 54.177
+    },
+    {
+      "model": "LightGBM + quote_signal",
+      "MAE": 52.555,
+      "RMSE": 79.606,
+      "MAPE_%": 2.319,
+      "Aug_MAE": 104.483
+    },
+    {
+      "model": "LightGBM + market_index",
+      "MAE": 64.914,
+      "RMSE": 89.389,
+      "MAPE_%": 2.968,
+      "Aug_MAE": 60.089
+    },
+    {
+      "model": "LightGBM (final)",
+      "MAE": 47.084,
+      "RMSE": 67.97,
+      "MAPE_%": 1.991,
+      "Aug_MAE": 40.744
+    }
+  ],
+  "feature_importance_pct": {
+    "weight_per_mile": 46.36,
+    "equipment": 30.65,
+    "distance": 13.18,
+    "pickup_lat": 1.64,
+    "delivery_lat": 1.59,
+    "delta_lon": 1.48,
+    "weight": 1.27,
+    "pickup_lon": 0.96,
+    "circuity": 0.92,
+    "delivery_lon": 0.9,
+    "dayofweek": 0.72,
+    "delta_lat": 0.27,
+    "is_weekend": 0.04,
+    "weight_missing": 0.0,
+    "weight_was_negative": 0.0,
+    "market_index_missing": 0.0
+  },
+  "final_n_estimators": 440
+}
