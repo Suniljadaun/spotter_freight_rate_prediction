@@ -11,6 +11,8 @@ Full write-up: [`reports/Freight_Rate_Report.pdf`](reports/Freight_Rate_Report.p
 
 Code: https://github.com/Suniljadaun/spotter_freight_rate_prediction
 
+Video walkthrough: https://www.loom.com/share/c81bc94940f3413582d39f939d0f3e8c
+
 ## Results
 
 | Model | Jul | Aug | Sep | Oct | Mean MAE | Mean MAPE |
